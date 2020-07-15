@@ -1,40 +1,33 @@
-0. ¾×¼¼½º Å° È®ÀÎ(IAM¿¡¼­ È®ÀÎ)
-Accesskey: AKIAQYU2ROSKSGBDP46C
-Access private key: kiTvo4O5jKomAqHjHeN7DfUg92Z8upyB8gUgJoHY
-
-0-1. Repository URI(ECR¿¡¼­ È®ÀÎ)
+0. Repository URI(ECRì—ì„œ í™•ì¸)
 052937454741.dkr.ecr.us-east-2.amazonaws.com/
 
-1. AWS Configure ¼¼ÆÃ
-AKIAQYU2ROSKSGBDP46C
-kiTvo4O5jKomAqHjHeN7DfUg92Z8upyB8gUgJoHY
-us-east-2
-json
+1. AWS Configure ì„¸íŒ…
+aws configure
 
-2. AWS ÄÁÅ×ÀÌ³Ê ·¹Áö½ºÆ®¸® ·Î±×ÀÎ
+2. AWS ì»¨í…Œì´ë„ˆ ë ˆì§€ìŠ¤íŠ¸ë¦¬ ë¡œê·¸ì¸
 aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 052937454741.dkr.ecr.us-east-2.amazonaws.com/
 
-3. KUBENETES Local¿¡ EKS Å¬·¯½ºÅÍ Á¢¼ÓÁ¤º¸ ¼³Á¤
+3. KUBENETES Localì— EKS í´ëŸ¬ìŠ¤í„° ì ‘ì†ì •ë³´ ì„¤ì •
 aws eks --region us-east-2 update-kubeconfig --name teamb-Cluster
 
-4. ¸ŞÀÌºì ÆĞÅ°Â¡
+4. ë©”ì´ë¸ íŒ¨í‚¤ì§•
 mvn package -Dmaven.test.skip=true
 
-5. ÀÌ¹ÌÁö ¸¸µé°í Çª½ÃÇÏ±â(CODE BUILDÀÌ¿ë ½Ã ½ºÅµ °¡´É)
+5. ì´ë¯¸ì§€ ë§Œë“¤ê³  í‘¸ì‹œí•˜ê¸°(CODE BUILDì´ìš© ì‹œ ìŠ¤í‚µ ê°€ëŠ¥)
 docker build -t 052937454741.dkr.ecr.us-east-2.amazonaws.com/teamb-payment:v1 .
 docker push 052937454741.dkr.ecr.us-east-2.amazonaws.com/teamb-payment:v1
 
-6. ¼­ºñ½º Deploy(CODE BUILDÀÌ¿ë ½Ã ½ºÅµ °¡´É)
+6. ì„œë¹„ìŠ¤ Deploy(CODE BUILDì´ìš© ì‹œ ìŠ¤í‚µ ê°€ëŠ¥)
 kubectl create deploy teamb-payment --image=052937454741.dkr.ecr.us-east-2.amazonaws.com/teamb-payment:v1
 
-7. ¼­ºñ½º »ı¼º(CODE BUILDÀÌ¿ë ½Ã ½ºÅµ °¡´É)
+7. ì„œë¹„ìŠ¤ ìƒì„±(CODE BUILDì´ìš© ì‹œ ìŠ¤í‚µ ê°€ëŠ¥)
 kubectl expose deploy teamb-payment --type=ClusterIP --port=8080
 
-5/6/7Àº CODE BUILD¸¦ ÀÌ¿ëÇÒ °æ¿ì ÇÁ·ÎÁ§Æ® º° buildspec.yaml ¿¡ ÄÚµå¸¦ ³ÖÀ½À¸·Î½á ÀÚµ¿À¸·Î ½ÇÇàÇÏ°Ô ÇÒ ¼ö ÀÖ´Ù.
+5/6/7ì€ CODE BUILDë¥¼ ì´ìš©í•  ê²½ìš° í”„ë¡œì íŠ¸ ë³„ buildspec.yaml ì— ì½”ë“œë¥¼ ë„£ìŒìœ¼ë¡œì¨ ìë™ìœ¼ë¡œ ì‹¤í–‰í•˜ê²Œ í•  ìˆ˜ ìˆë‹¤.
 
-8. External-IP È®ÀÎ
-kubectl get svc -w ÇØ¼­ ÇØ´ç product ¼­ºñ½ºÀÇ external ip ÂüÁ¶
-=============================¹èÆ÷¿ë===============================
+8. External-IP í™•ì¸
+kubectl get svc -w í•´ì„œ í•´ë‹¹ product ì„œë¹„ìŠ¤ì˜ external ip ì°¸ì¡°
+=============================ë°°í¬ìš©===============================
 AWS_ACCOUNT_ID
 052937454741
 
@@ -45,20 +38,20 @@ KUBE_TOKEN
 eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJla3MtYWRtaW4tdG9rZW4tNGo0a2QiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoiZWtzLWFkbWluIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQudWlkIjoiMGU0NjYyMWQtZDE1Yi00MDgyLWJmNTktODQ2Mjk4MjI1NGVhIiwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50Omt1YmUtc3lzdGVtOmVrcy1hZG1pbiJ9.BhOpN2W7p4GE6WQ8cCnlAXkmGqLJcnvfvMgN3FK7AFbqfox4qGq9n0521c0IReuJ5DGOgVrlLdcpIvlfUDKVUo6l_QkRDltvspIBq5ZbeBHj1_HTOJjjUbJmfF3ekhnY1hENC2O2MdjWYinSHLdOnYZhZYn5pNSinUGhE5fwHwDDdhPln2Ro8-xnnxsQebfGj9e7DWIaZmOXOlTSKBwMHl0rm-5SmcODN_EIQ__M1CqzIyCfZMbuxepfJgJZbPoozNvrxCkHPBOwksZRjB96PObP4W6FDJft8pHIe4dn2aAnDBGMQ34JYmmY-RyC3IVgxT1WgM14JCI1gb9WmvlT2w
 ====================================================================
 
-¼­ºñ½º ´Ù½Ã ¿Ã¸®±â
+ì„œë¹„ìŠ¤ ë‹¤ì‹œ ì˜¬ë¦¬ê¸°
 kubectl get svc teamb-bookmanagement -o yaml | kubectl replace --force -f-
 
-ÅäÇÈ »ı¼º 
+í† í”½ ìƒì„± 
 kubectl -n kafka exec my-kafka-0 -- /usr/bin/kafka-topics --zookeeper my-kafka-zookeeper:2181 --topic eventTopic --create --partitions 1 --replication-factor 1
 kubectl -n kafka exec my-kafka-0 -- /usr/bin/kafka-topics --zookeeper my-kafka-zookeeper:2181 --list
 kubectl -n kafka exec -ti my-kafka-0 -- /usr/bin/kafka-console-producer --broker-list my-kafka:9092 --topic eventTopic
 
-»õ Ã¢À» ¿¬ ÈÄ
+ìƒˆ ì°½ì„ ì—° í›„
 kubectl -n kafka exec -ti my-kafka-0 -- /usr/bin/kafka-console-consumer --bootstrap-server my-kafka:9092 --topic eventTopic --from-beginning
-(Çö ÇÁ·ÎÁ§Æ®ÀÇ °æ¿ì)
+(í˜„ í”„ë¡œì íŠ¸ì˜ ê²½ìš°)
 kubectl -n kafka exec -ti my-kafka-0 -- /usr/bin/kafka-console-consumer --bootstrap-server my-kafka:9092 --topic bookrental --from-beginning
 
-POST/GETÀ» ÀÌ¿ëÇÑ Å×½ºÆ® ÀÌ·Âµé
+POST/GETì„ ì´ìš©í•œ í…ŒìŠ¤íŠ¸ ì´ë ¥ë“¤
 http POST ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/bookManagements bookName="The Bible" rentalFee=500
 http POST ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/users userName="GCW"
 http POST ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/bookRentalSystems/rent bookId="7" userId="5"
@@ -70,32 +63,32 @@ http GET ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:
 http POST ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/bookManagements bookName="Harry Potter" rentalFee=600
 
 
-½Ã¿¬ È¤Àº Å×½ºÆ® ½Ã º¸¿©Áà¾ß ÇÏ´Â ½ºÅ©¸³Æ®
+ì‹œì—° í˜¹ì€ í…ŒìŠ¤íŠ¸ ì‹œ ë³´ì—¬ì¤˜ì•¼ í•˜ëŠ” ìŠ¤í¬ë¦½íŠ¸
 
---ID »ı¼º
+--ID ìƒì„±
 http POST ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/users userName="admin"
 
---Ã¥ »ı¼º
+--ì±… ìƒì„±
 http POST ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/bookManagements bookName="Golden Slumber" rentalFee=500
 
---´ë¿© ÇÏ±â Àü »óÅÂ È®ÀÎ
-http GET ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/users/Ãß°¡µÈ user id
---´ë¿©
-http POST ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/bookRentalSystems/rent bookId="Ãß°¡µÈ Ã¥ id" userId="Ãß°¡µÈ user id"
---´ë¿© ÈÄ »óÅÂ È®ÀÎ
-http GET ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/users/Ãß°¡µÈ user id
+--ëŒ€ì—¬ í•˜ê¸° ì „ ìƒíƒœ í™•ì¸
+http GET ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/users/ì¶”ê°€ëœ user id
+--ëŒ€ì—¬
+http POST ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/bookRentalSystems/rent bookId="ì¶”ê°€ëœ ì±… id" userId="ì¶”ê°€ëœ user id"
+--ëŒ€ì—¬ í›„ ìƒíƒœ í™•ì¸
+http GET ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/users/ì¶”ê°€ëœ user id
 
---¹İ³³ 
-http POST ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/bookRentalSystems/return id="ÇØ´ç ·»Å» id"
+--ë°˜ë‚© 
+http POST ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/bookRentalSystems/return id="í•´ë‹¹ ë Œíƒˆ id"
 
---¹İ³³ ÈÄ »óÅÂ È®ÀÎ
-http GET ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/users/Ãß°¡µÈ user id
+--ë°˜ë‚© í›„ ìƒíƒœ í™•ì¸
+http GET ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/users/ì¶”ê°€ëœ user id
 
---´Ù½Ã ´ë¿©
-http POST ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/bookRentalSystems/rent bookId="Ãß°¡µÈ Ã¥ id" userId="Ãß°¡µÈ user id"
+--ë‹¤ì‹œ ëŒ€ì—¬
+http POST ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/bookRentalSystems/rent bookId="ì¶”ê°€ëœ ì±… id" userId="ì¶”ê°€ëœ user id"
 
---´ë¿© Ãë¼Ò
-http POST ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/bookRentalSystems/cancel id="ÇØ´ç ·»Å» id"
+--ëŒ€ì—¬ ì·¨ì†Œ
+http POST ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/bookRentalSystems/cancel id="í•´ë‹¹ ë Œíƒˆ id"
 
---´ë¿© Ãë¼Ò ÈÄ »óÅÂ id
-http GET ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/users/Ãß°¡µÈ user id
+--ëŒ€ì—¬ ì·¨ì†Œ í›„ ìƒíƒœ id
+http GET ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/users/ì¶”ê°€ëœ user id
