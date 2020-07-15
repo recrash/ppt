@@ -1,0 +1,101 @@
+0. 액세스 키 확인(IAM에서 확인)
+Accesskey: AKIAQYU2ROSKSGBDP46C
+Access private key: kiTvo4O5jKomAqHjHeN7DfUg92Z8upyB8gUgJoHY
+
+0-1. Repository URI(ECR에서 확인)
+052937454741.dkr.ecr.us-east-2.amazonaws.com/
+
+1. AWS Configure 세팅
+AKIAQYU2ROSKSGBDP46C
+kiTvo4O5jKomAqHjHeN7DfUg92Z8upyB8gUgJoHY
+us-east-2
+json
+
+2. AWS 컨테이너 레지스트리 로그인
+aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 052937454741.dkr.ecr.us-east-2.amazonaws.com/
+
+3. KUBENETES Local에 EKS 클러스터 접속정보 설정
+aws eks --region us-east-2 update-kubeconfig --name teamb-Cluster
+
+4. 메이븐 패키징
+mvn package -Dmaven.test.skip=true
+
+5. 이미지 만들고 푸시하기(CODE BUILD이용 시 스킵 가능)
+docker build -t 052937454741.dkr.ecr.us-east-2.amazonaws.com/teamb-payment:v1 .
+docker push 052937454741.dkr.ecr.us-east-2.amazonaws.com/teamb-payment:v1
+
+6. 서비스 Deploy(CODE BUILD이용 시 스킵 가능)
+kubectl create deploy teamb-payment --image=052937454741.dkr.ecr.us-east-2.amazonaws.com/teamb-payment:v1
+
+7. 서비스 생성(CODE BUILD이용 시 스킵 가능)
+kubectl expose deploy teamb-payment --type=ClusterIP --port=8080
+
+5/6/7은 CODE BUILD를 이용할 경우 프로젝트 별 buildspec.yaml 에 코드를 넣음으로써 자동으로 실행하게 할 수 있다.
+
+8. External-IP 확인
+kubectl get svc -w 해서 해당 product 서비스의 external ip 참조
+=============================배포용===============================
+AWS_ACCOUNT_ID
+052937454741
+
+KUBE_URL
+https://69B18309FB89362E796EA79D548E069B.gr7.us-east-2.eks.amazonaws.com
+
+KUBE_TOKEN
+eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJla3MtYWRtaW4tdG9rZW4tNGo0a2QiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoiZWtzLWFkbWluIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQudWlkIjoiMGU0NjYyMWQtZDE1Yi00MDgyLWJmNTktODQ2Mjk4MjI1NGVhIiwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50Omt1YmUtc3lzdGVtOmVrcy1hZG1pbiJ9.BhOpN2W7p4GE6WQ8cCnlAXkmGqLJcnvfvMgN3FK7AFbqfox4qGq9n0521c0IReuJ5DGOgVrlLdcpIvlfUDKVUo6l_QkRDltvspIBq5ZbeBHj1_HTOJjjUbJmfF3ekhnY1hENC2O2MdjWYinSHLdOnYZhZYn5pNSinUGhE5fwHwDDdhPln2Ro8-xnnxsQebfGj9e7DWIaZmOXOlTSKBwMHl0rm-5SmcODN_EIQ__M1CqzIyCfZMbuxepfJgJZbPoozNvrxCkHPBOwksZRjB96PObP4W6FDJft8pHIe4dn2aAnDBGMQ34JYmmY-RyC3IVgxT1WgM14JCI1gb9WmvlT2w
+====================================================================
+
+서비스 다시 올리기
+kubectl get svc teamb-bookmanagement -o yaml | kubectl replace --force -f-
+
+토픽 생성 
+kubectl -n kafka exec my-kafka-0 -- /usr/bin/kafka-topics --zookeeper my-kafka-zookeeper:2181 --topic eventTopic --create --partitions 1 --replication-factor 1
+kubectl -n kafka exec my-kafka-0 -- /usr/bin/kafka-topics --zookeeper my-kafka-zookeeper:2181 --list
+kubectl -n kafka exec -ti my-kafka-0 -- /usr/bin/kafka-console-producer --broker-list my-kafka:9092 --topic eventTopic
+
+새 창을 연 후
+kubectl -n kafka exec -ti my-kafka-0 -- /usr/bin/kafka-console-consumer --bootstrap-server my-kafka:9092 --topic eventTopic --from-beginning
+(현 프로젝트의 경우)
+kubectl -n kafka exec -ti my-kafka-0 -- /usr/bin/kafka-console-consumer --bootstrap-server my-kafka:9092 --topic bookrental --from-beginning
+
+POST/GET을 이용한 테스트 이력들
+http POST ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/bookManagements bookName="The Bible" rentalFee=500
+http POST ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/users userName="GCW"
+http POST ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/bookRentalSystems/rent bookId="7" userId="5"
+http POST ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/bookRentalSystems/return id="3"
+http POST ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/bookRentalSystems/cancel id="1"
+http GET ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/users/7
+http GET ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/bookRentalSystems/
+http GET ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/bookListStatuses
+http POST ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/bookManagements bookName="Harry Potter" rentalFee=600
+
+
+시연 혹은 테스트 시 보여줘야 하는 스크립트
+
+--ID 생성
+http POST ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/users userName="admin"
+
+--책 생성
+http POST ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/bookManagements bookName="Golden Slumber" rentalFee=500
+
+--대여 하기 전 상태 확인
+http GET ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/users/추가된 user id
+--대여
+http POST ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/bookRentalSystems/rent bookId="추가된 책 id" userId="추가된 user id"
+--대여 후 상태 확인
+http GET ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/users/추가된 user id
+
+--반납 
+http POST ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/bookRentalSystems/return id="해당 렌탈 id"
+
+--반납 후 상태 확인
+http GET ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/users/추가된 user id
+
+--다시 대여
+http POST ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/bookRentalSystems/rent bookId="추가된 책 id" userId="추가된 user id"
+
+--대여 취소
+http POST ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/bookRentalSystems/cancel id="해당 렌탈 id"
+
+--대여 취소 후 상태 id
+http GET ad262da7fd01e4863a176b1bbc16a9b2-912360772.us-east-2.elb.amazonaws.com:8080/users/추가된 user id
